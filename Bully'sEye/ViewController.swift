@@ -12,26 +12,41 @@ class ViewController: UIViewController
 {
     var currentValue = 0
     var targetValue = 0
+    var trackingRounds = 0
+    var score = 0
+    
     @IBOutlet weak var slider: UISlider!
     @IBOutlet weak var targetValueLabel: UILabel!
-    
+    @IBOutlet weak var trackingRoundLabel: UILabel!
+    @IBOutlet weak var ScoreLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         currentValue = lroundf(slider.value)
-        startNewRound()
-        
+       reStartTheGame()
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+   @IBAction func reStartTheGame() {
+        trackingRounds = 0
+    score = 0
+    startNewRound()
+    }
+    func updateLabels() {
+        targetValueLabel.text = String(targetValue)
+        trackingRoundLabel.text = String(trackingRounds)
+        ScoreLabel.text = String(score)
+    }
     func startNewRound() {
         targetValue = 1 + Int(arc4random_uniform(100))
         currentValue = 50
         slider.value  = Float(currentValue)
-        targetValueLabel.text = "\(targetValue)"
+        trackingRounds += 1
+        updateLabels()
+        
     }
     @IBAction func sliderMoved (_ slider: UISlider) {
         print("the value of slider: \(slider.value)")
@@ -40,15 +55,39 @@ class ViewController: UIViewController
     @IBAction func showAlert() {
         
         let difference: Int = abs(currentValue - targetValue)
-        let points = 100 - difference
-        let message = "You score is: \(points)"
+        var points  = 100 - difference
         
-//        var difference: Int  = currentValue - targetValue   //(second way of writting )
-//        if difference < 0 {
-//            //difference = difference * -1 //(one way of writting )
-//            //difference *= -1 //(second way of writting )
-//            difference = -difference
-//        }
+        let title: String
+        if difference == 0 {
+            title = "Perfect!"
+            points += 100
+        } else if difference < 5 {
+            title = "You almost had it!"
+            if difference == 1{
+                points += 50
+            }
+        } else if difference < 10 {
+            title = "Pretty good"
+        } else {
+            title = "Not even close..."
+        }
+        score += points
+        let message = "You score is: \(score)"
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let action = UIAlertAction(title: "Awesome", style: .default, handler: {
+            action in
+            self.startNewRound()
+        })
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
+        
+        
+        //        var difference: Int  = currentValue - targetValue   //(second way of writting )
+        //        if difference < 0 {
+        //            //difference = difference * -1 //(one way of writting )
+        //            //difference *= -1 //(second way of writting )
+        //            difference = -difference
+        //        }
         //        var difference: Int //(one way of writting )
         //        if targetValue > currentValue {
         //            difference = targetValue - currentValue
@@ -58,16 +97,10 @@ class ViewController: UIViewController
         //            difference = 0
         //        }
         
-//        let message = "The value of slider is: \(currentValue)" +
-//            "\nThe target value of slider is: \(targetValue)" +
-//        "\nThe difference of target value is: \(difference)"
-    
-        let alert = UIAlertController(title: "HEllo WORLD!", message: message, preferredStyle: .alert)
-        let action = UIAlertAction(title: "Awesome", style: .default, handler: nil)
-        alert.addAction(action)
-        present(alert, animated: true, completion: nil)
+        //        let message = "The value of slider is: \(currentValue)" +
+        //            "\nThe target value of slider is: \(targetValue)" +
+        //        "\nThe difference of target value is: \(difference)"
         
-        startNewRound()
     }
 }
 
